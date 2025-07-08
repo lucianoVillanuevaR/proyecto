@@ -2,13 +2,17 @@
 
 import Material from "../entity/material.entity.js";
 import { AppDataSource } from "../config/configDb.js";
+import { createMaterialValidation } from "../validations/material.validation.js";
 
 const materialRepository = AppDataSource.getRepository(Material);
 
-// Crear un nuevo material
+// Crear material
 export async function createMaterial(req, res) {
   try {
     const { nombre, tipo, cantidadTotal } = req.body;
+
+    const { error } = createMaterialValidation.validate(req.body);
+    if (error) return res.status(400).json({ message: error.message });
 
     const existing = await materialRepository.findOne({ where: { nombre } });
     if (existing)
@@ -25,9 +29,10 @@ export async function createMaterial(req, res) {
 
     await materialRepository.save(material);
 
-    res
-      .status(201)
-      .json({ message: "Material registrado exitosamente", data: material });
+    res.status(201).json({
+      message: "Material registrado exitosamente",
+      data: material,
+    });
   } catch (error) {
     console.error("Error al crear material: ", error);
     res.status(500).json({ message: "Error interno del servidor" });
@@ -45,7 +50,7 @@ export async function getAllMaterials(req, res) {
   }
 }
 
-// Obtener material por ID (opcional)
+// Obtener material por ID
 export async function getMaterialById(req, res) {
   try {
     const { id } = req.params;
