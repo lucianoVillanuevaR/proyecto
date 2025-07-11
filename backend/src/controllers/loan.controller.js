@@ -3,61 +3,54 @@
 import Material from "../entity/material.entity.js";
 import Loan from "../entity/loan.entity.js";
 import { AppDataSource } from "../config/configDb.js";
-import { createLoanValidation } from "../validations/loan.validation.js";
 
 const loanRepository = AppDataSource.getRepository(Loan);
 const materialRepository = AppDataSource.getRepository(Material);
 
-// Registrar un nuevo préstamo
 export async function createLoan(req, res) {
   try {
     const estudianteEmail = req.user.email;
-    const rolUsuario = req.user?.rol || req.user?.role;
-    const { materialNombre, cantidad } = req.body;
+    const { materialNombre } = req.body;
 
-    // Validación con Joi
-    const { error } = createLoanValidation.validate(req.body);
-    if (error) return res.status(400).json({ message: error.message });
+    if (!materialNombre) {
+      return res.status(400).json({ message: "Debes indicar el nombre del material." });
+    }
 
+    // Verificar si ya tiene un préstamo pendiente
     const prestamoPendiente = await loanRepository.findOne({
       where: { estudianteEmail, estado: "pendiente" },
     });
     if (prestamoPendiente) {
-      return res.status(400).json({
-        message: "Ya tienes un préstamo pendiente de devolución.",
-      });
+      return res.status(400).json({ message: "Ya tienes un préstamo pendiente." });
     }
 
-    // Buscar material
     const material = await materialRepository.findOne({
-      where: { nombre: materialNombre },
+      where: { nombre: materialNombre.trim().toLowerCase() },
     });
-    if (!material || material.estado !== "activo") {
-      return res.status(404).json({ message: "Material no disponible." });
+
+    if (!material || material.estado !== "activo" || material.cantidadDisponible <= 0) {
+      return res.status(404).json({ message: "Material no disponible o sin stock." });
     }
 
-    if (material.cantidadDisponible < cantidad) {
-      return res.status(400).json({ message: "No hay suficiente stock disponible." });
-    }
+   // Validar horario solo para usuarios normales
+const hora = new Date().getHours();
+const rolUsuario = req.user?.rol || req.user?.role;
 
-    // Validar horario (solo usuarios normales)
-    const ahora = new Date();
-    const hora = ahora.getHours();
-    if ((hora < 8 || hora >= 18) && rolUsuario !== "administrador") {
-      return res.status(403).json({
-        message: "Los préstamos solo están disponibles entre las 08:00 y las 18:00.",
-      });
-    }
+if ((hora < 8 || hora >= 18) && rolUsuario !== "administrador") {
+  return res.status(403).json({
+    message: "Los préstamos solo están disponibles entre 08:00 y 18:00.",
+  });
+}
+
 
     const nuevoPrestamo = loanRepository.create({
       estudianteEmail,
-      materialNombre,
-      cantidad,
+      materialNombre: material.nombre,
       estado: "pendiente",
     });
     await loanRepository.save(nuevoPrestamo);
 
-    material.cantidadDisponible -= cantidad;
+    material.cantidadDisponible -= 1;
     await materialRepository.save(material);
 
     res.status(201).json({
@@ -65,12 +58,11 @@ export async function createLoan(req, res) {
       data: nuevoPrestamo,
     });
   } catch (error) {
-    console.error("Error al registrar préstamo: ", error);
+    console.error("Error al registrar préstamo:", error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 
-// Devolver un préstamo pendiente
 export async function returnLoan(req, res) {
   try {
     const estudianteEmail = req.user.email;
@@ -78,17 +70,17 @@ export async function returnLoan(req, res) {
     const prestamo = await loanRepository.findOne({
       where: { estudianteEmail, estado: "pendiente" },
     });
+
     if (!prestamo) {
-      return res.status(404).json({ message: "No tienes préstamos pendientes para devolver." });
+      return res.status(404).json({ message: "No tienes préstamos pendientes." });
     }
 
     const material = await materialRepository.findOne({
-      where: { nombre: prestamo.materialNombre },
+      where: { nombre: prestamo.materialNombre.trim().toLowerCase() },
     });
+
     if (!material) {
-      return res.status(404).json({
-        message: "No se encontró el material asociado al préstamo.",
-      });
+      return res.status(404).json({ message: "Material no encontrado." });
     }
 
     // Actualizar préstamo y stock
@@ -96,12 +88,12 @@ export async function returnLoan(req, res) {
     prestamo.fechaHoraDevolucion = new Date();
     await loanRepository.save(prestamo);
 
-    material.cantidadDisponible += prestamo.cantidad;
+    material.cantidadDisponible += 1;
     await materialRepository.save(material);
 
     res.status(200).json({ message: "Préstamo devuelto exitosamente." });
   } catch (error) {
-    console.error("Error al devolver préstamo: ", error);
+    console.error("Error al devolver préstamo:", error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
