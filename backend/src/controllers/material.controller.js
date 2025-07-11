@@ -3,10 +3,9 @@
 import Material from "../entity/material.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { createMaterialValidation } from "../validations/material.validation.js";
-
 const materialRepository = AppDataSource.getRepository(Material);
 
-// Crear material
+//Crear material
 export async function createMaterial(req, res) {
   try {
     const { nombre, tipo, cantidadTotal } = req.body;
@@ -19,12 +18,11 @@ export async function createMaterial(req, res) {
       return res
         .status(409)
         .json({ message: "El material ya está registrado" });
-
     const material = materialRepository.create({
       nombre,
       tipo,
       cantidadTotal,
-      cantidadDisponible: cantidadTotal,
+      cantidadDisponible: cantidadTotal, 
     });
 
     await materialRepository.save(material);
@@ -34,38 +32,34 @@ export async function createMaterial(req, res) {
       data: material,
     });
   } catch (error) {
-    console.error("Error al crear material: ", error);
+    console.error("Error al crear material:", error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 }
 
-// Obtener todos los materiales
+//Obtener todos los materiales (con stock)
 export async function getAllMaterials(req, res) {
   try {
-    const materials = await materialRepository.find();
+    const materiales = await materialRepository.find({
+      order: { id: "ASC" },
+    });
+
+    const lista = materiales.map((m) => ({
+      id: m.id,
+      nombre: m.nombre,
+      tipo: m.tipo,
+      estado: m.estado,
+      cantidadTotal: m.cantidadTotal,
+      cantidadDisponible: m.cantidadDisponible,
+    }));
 
     res.status(200).json({
-      message: "Materiales encontrados",
-      data: materials,
+      message: "Lista de materiales",
+      data: lista,
     });
   } catch (error) {
-    console.error("Error al obtener materiales: ", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error("Error al obtener materiales:", error);
+    res.status(500).json({ message: "Error interno del servidor", error: error.message });
   }
 }
 
-// Obtener material por ID
-export async function getMaterialById(req, res) {
-  try {
-    const { id } = req.params;
-    const material = await materialRepository.findOne({ where: { id } });
-
-    if (!material)
-      return res.status(404).json({ message: "Material no encontrado" });
-
-    res.status(200).json({ message: "Material encontrado", data: material });
-  } catch (error) {
-    console.error("Error al buscar material por ID: ", error);
-    res.status(500).json({ message: "Error interno del servidor" });
-  }
-}
