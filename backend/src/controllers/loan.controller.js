@@ -12,13 +12,13 @@ const materialRepository = AppDataSource.getRepository(Material);
 export async function createLoan(req, res) {
   try {
     const estudianteEmail = req.user.email;
-    const { materialNombre } = req.body;
+    const rolUsuario = req.user?.rol || req.user?.role;
+    const { materialNombre, cantidad } = req.body;
 
-  
+    // Validación con Joi
     const { error } = createLoanValidation.validate(req.body);
     if (error) return res.status(400).json({ message: error.message });
 
-  
     const prestamoPendiente = await loanRepository.findOne({
       where: { estudianteEmail, estado: "pendiente" },
     });
@@ -28,7 +28,7 @@ export async function createLoan(req, res) {
       });
     }
 
-
+    // Buscar material
     const material = await materialRepository.findOne({
       where: { nombre: materialNombre },
     });
@@ -36,31 +36,28 @@ export async function createLoan(req, res) {
       return res.status(404).json({ message: "Material no disponible." });
     }
 
-  
-    if (material.cantidadDisponible <= 0) {
-      return res.status(400).json({ message: "No hay stock disponible." });
+    if (material.cantidadDisponible < cantidad) {
+      return res.status(400).json({ message: "No hay suficiente stock disponible." });
     }
 
-  const ahora = new Date();
-const hora = ahora.getHours();
-const rolUsuario = req.user?.rol || req.user?.role; 
-//Admin
-if ((hora < 8 || hora >= 18) && rolUsuario !== "administrador") {
-  return res.status(403).json({
-    message:
-      "Los préstamos solo están disponibles entre las 08:00 y las 18:00.",
-  });
-}
+    // Validar horario (solo usuarios normales)
+    const ahora = new Date();
+    const hora = ahora.getHours();
+    if ((hora < 8 || hora >= 18) && rolUsuario !== "administrador") {
+      return res.status(403).json({
+        message: "Los préstamos solo están disponibles entre las 08:00 y las 18:00.",
+      });
+    }
 
     const nuevoPrestamo = loanRepository.create({
       estudianteEmail,
       materialNombre,
+      cantidad,
       estado: "pendiente",
     });
     await loanRepository.save(nuevoPrestamo);
 
- 
-    material.cantidadDisponible -= 1;
+    material.cantidadDisponible -= cantidad;
     await materialRepository.save(material);
 
     res.status(201).json({
@@ -82,9 +79,7 @@ export async function returnLoan(req, res) {
       where: { estudianteEmail, estado: "pendiente" },
     });
     if (!prestamo) {
-      return res
-        .status(404)
-        .json({ message: "No tienes préstamos pendientes para devolver." });
+      return res.status(404).json({ message: "No tienes préstamos pendientes para devolver." });
     }
 
     const material = await materialRepository.findOne({
@@ -96,11 +91,12 @@ export async function returnLoan(req, res) {
       });
     }
 
+    // Actualizar préstamo y stock
     prestamo.estado = "devuelto";
     prestamo.fechaHoraDevolucion = new Date();
     await loanRepository.save(prestamo);
 
-    material.cantidadDisponible += 1;
+    material.cantidadDisponible += prestamo.cantidad;
     await materialRepository.save(material);
 
     res.status(200).json({ message: "Préstamo devuelto exitosamente." });

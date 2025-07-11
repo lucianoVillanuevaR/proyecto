@@ -43,7 +43,11 @@ export async function createMaterial(req, res) {
 export async function getAllMaterials(req, res) {
   try {
     const materials = await materialRepository.find();
-    res.status(200).json({ message: "Materiales encontrados", data: materials });
+
+    res.status(200).json({
+      message: "Materiales encontrados",
+      data: materials,
+    });
   } catch (error) {
     console.error("Error al obtener materiales: ", error);
     res.status(500).json({ message: "Error interno del servidor" });
