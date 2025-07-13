@@ -3,18 +3,12 @@
 import { Router } from "express";
 import { createLoan, returnLoan, getAllLoans } from "../controllers/loan.controller.js";
 import { authenticateJwt } from "../middleware/authentication.middleware.js";
-
-
+import { isAdmin } from "../middleware/authorization.middleware.js"; // ✅ Importado
 
 const router = Router();
 
-// Crear préstamo (usuario autenticado)
 router.post("/", authenticateJwt, createLoan);
-
-// Devolver préstamo
 router.put("/devolver", authenticateJwt, returnLoan);
-
-router.get("/", authenticateJwt, getAllLoans);
-
+router.get("/", authenticateJwt, isAdmin, getAllLoans); // ✅ Solo admin
 
 export default router;

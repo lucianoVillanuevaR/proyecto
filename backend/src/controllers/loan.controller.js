@@ -4,19 +4,21 @@ import Material from "../entity/material.entity.js";
 import Loan from "../entity/loan.entity.js";
 import { AppDataSource } from "../config/configDb.js";
 import { createLoanValidation } from "../validations/loan.validation.js";
+
 const loanRepository = AppDataSource.getRepository(Loan);
 const materialRepository = AppDataSource.getRepository(Material);
 
 // Crear un préstamo
 export async function createLoan(req, res) {
   try {
+    const { error } = createLoanValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
     const estudianteEmail = req.user.email;
     const rolUsuario = req.user?.rol || req.user?.role;
     const { materialNombre } = req.body;
-
-    if (!materialNombre) {
-      return res.status(400).json({ message: "Debes indicar el nombre del material." });
-    }
 
     const prestamoPendiente = await loanRepository.findOne({
       where: { estudianteEmail, estado: "pendiente" },
@@ -31,7 +33,7 @@ export async function createLoan(req, res) {
       where: { nombre: nombreNormalizado },
     });
 
-    if (!material || material.estado !== "activo" || material.cantidadDisponible <= 1) {
+    if (!material || material.estado !== "activo" || material.cantidadDisponible <= 0) {
       return res.status(404).json({ message: "Material no disponible o sin stock." });
     }
 
@@ -102,12 +104,12 @@ export async function returnLoan(req, res) {
 export async function getAllLoans(req, res) {
   try {
     const prestamos = await loanRepository.find({
-      order: { id: "DESC" }
+      order: { id: "DESC" },
     });
 
     res.status(200).json({
       message: "Lista de préstamos",
-      data: prestamos
+      data: prestamos,
     });
   } catch (error) {
     console.error("Error al obtener préstamos:", error);
