@@ -30,7 +30,7 @@ export const MaterialEntity = new EntitySchema({
     },
     estado: {
       type: String,
-      default: "activo", // activo | inactivo
+      default: "activo", 
     },
     createdAt: {
       type: "timestamp",
