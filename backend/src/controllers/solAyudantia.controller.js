@@ -14,19 +14,16 @@ export async function solicitarAyudantia(req, res) {
         const { ayudantiaId } = req.body;
         const usuarioEmail = req.user.email;
 
-        // Validar datos de entrada
         const { error } = solicitudValidation.validate(req.body);
         if (error) {
             return res.status(400).json({ message: error.message });
         }
 
-        // Buscar el usuario completo
         const usuario = await userRepository.findOne({ where: { email: usuarioEmail } });
         if (!usuario) {
             return res.status(404).json({ message: "Usuario no encontrado" });
         }
 
-        // Verificar si ya tiene una solicitud para esta ayudantía
         const solicitudExistente = await solAyudantiaRepository.findOne({
             where: { 
                 estudianteEmail: usuarioEmail,
@@ -45,18 +42,16 @@ export async function solicitarAyudantia(req, res) {
             });
         }
 
-        // Buscar la ayudantía
         const ayudantia = await ayudantiaRepository.findOne({ where: { id: ayudantiaId } });
         if (!ayudantia) {
             return res.status(404).json({ message: "Ayudantía no encontrada" });
         }
 
-        // Verificar si tiene profesor
         if (!ayudantia.hayprofesor) {
             const solicitudRechazada = solAyudantiaRepository.create({
                 estudianteEmail: usuarioEmail,
                 ayudantiaId: ayudantiaId,
-                ayudantiaAsignatura: ayudantia.asignatura, // Usar la asignatura de la ayudantía
+                ayudantiaAsignatura: ayudantia.asignatura,
                 estado: "rechazada"
             });
 
@@ -68,7 +63,6 @@ export async function solicitarAyudantia(req, res) {
             });
         }
 
-        // Contar solicitudes aprobadas actuales
         const solicitudesAprobadas = await solAyudantiaRepository.count({
             where: { 
                 ayudantiaId: ayudantiaId,
@@ -78,12 +72,11 @@ export async function solicitarAyudantia(req, res) {
 
         const cuposDisponibles = ayudantia.cupo - solicitudesAprobadas;
 
-        // Verificar cupos disponibles
         if (cuposDisponibles <= 0) {
             const solicitudRechazada = solAyudantiaRepository.create({
                 estudianteEmail: usuarioEmail,
                 ayudantiaId: ayudantiaId,
-                ayudantiaAsignatura: ayudantia.asignatura, // Usar la asignatura de la ayudantía
+                ayudantiaAsignatura: ayudantia.asignatura,
                 estado: "rechazada"
             });
 
@@ -95,11 +88,10 @@ export async function solicitarAyudantia(req, res) {
             });
         }
 
-        // Aprobar automáticamente
         const solicitudAprobada = solAyudantiaRepository.create({
             estudianteEmail: usuarioEmail,
             ayudantiaId: ayudantiaId,
-            ayudantiaAsignatura: ayudantia.asignatura, // Usar la asignatura de la ayudantía
+            ayudantiaAsignatura: ayudantia.asignatura,
             estado: "aprobada"
         });
 
@@ -119,7 +111,6 @@ export async function solicitarAyudantia(req, res) {
     }
 }
 
-// Ver mis solicitudes
 export async function misSolicitudes(req, res) {
     try {
         const usuarioEmail = req.user.email;
@@ -140,7 +131,6 @@ export async function misSolicitudes(req, res) {
     }
 }
 
-// Ver solicitud específica
 export async function getSolicitudById(req, res) {
     try {
         const { id } = req.params;
@@ -149,7 +139,7 @@ export async function getSolicitudById(req, res) {
         const solicitud = await solAyudantiaRepository.findOne({
             where: { 
                 id: id,
-                estudianteEmail: usuarioEmail // Solo puede ver sus propias solicitudes
+                estudianteEmail: usuarioEmail 
             }
         });
 
