@@ -29,7 +29,7 @@ export const LoanEntity = new EntitySchema({
     },
     estado: {
       type: String,
-      default: "pendiente", // pendiente | devuelto
+      default: "pendiente", 
     },
     createdAt: {
       type: "timestamp",
