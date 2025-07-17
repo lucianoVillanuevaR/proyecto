@@ -1,7 +1,5 @@
 "use strict";
 import Joi from "joi";
-
-// Validación para solicitar ayudantía
 export const solicitudValidation = Joi.object({
     ayudantiaId: Joi.number()
         .integer()
