@@ -5,13 +5,11 @@ import { createValidation, updateValidation } from "../validations/ayudantia.val
 
 export async function getAyudantias(req, res){
     try {
-        // Conectarse a la base de datos
+      
         const ayudantiasRepository = AppDataSource.getRepository(Ayudantia);
         
-        // Obtener todas las ayudantías
         const ayudantias = await ayudantiasRepository.find();
         
-        // Enviar la respuesta con las ayudantías
         res.status(200).json({ message: "Ayudantias encontradas correctamente", data: ayudantias });
 
     } catch (error) {
@@ -25,8 +23,7 @@ export async function getayudantiaById(req, res){
     try{
         const ayudantiaRepository = AppDataSource.getRepository(Ayudantia);
         const { id } = req.params;
-        
-        // Buscar la ayudantía por ID
+
         const ayudantia = await ayudantiaRepository.findOne({ where: { id } });
 
         if (!ayudantia) {
@@ -72,15 +69,12 @@ export async function updateAyudantia(req, res){
         const { id } = req.params;
         const { asignatura, descripcion, hayprofesor, cupo } = req.body;
         
-        // Buscar la ayudantía por ID
         const ayudantia = await ayudantiaRepository.findOne({ where: { id } });
         if (!ayudantia) return res.status(404).json({ message: "Ayudantía no encontrada" });
 
-        // Validar los datos
         const { error } = updateValidation.validate(req.body);
         if (error) return res.status(400).json({ message: error.message });
 
-        // Actualizar los campos usando la variable correcta
         ayudantia.asignatura = asignatura || ayudantia.asignatura;
         ayudantia.descripcion = descripcion || ayudantia.descripcion;
         ayudantia.hayprofesor = hayprofesor || ayudantia.hayprofesor;
@@ -112,19 +106,15 @@ export async function deleteAyudantia(req, res){
 
 export async function getAyudantiasConCupos(req, res) {
     try {
-        // Importar dinámicamente para evitar problemas de dependencias circulares
         const { default: SolicitudAyudantia } = await import("../entity/solicitudAyudantia.entity.js");
         
         const ayudantiasRepository = AppDataSource.getRepository(Ayudantia);
         const solicitudRepository = AppDataSource.getRepository(SolicitudAyudantia);
         
-        // Obtener todas las ayudantías
         const ayudantias = await ayudantiasRepository.find();
         
-        // Para cada ayudantía, calcular cupos disponibles
         const ayudantiasConInfo = await Promise.all(
             ayudantias.map(async (ayudantia) => {
-                // Contar solicitudes aprobadas
                 const solicitudesAprobadas = await solicitudRepository.count({
                     where: {
                         ayudantiaId: ayudantia.id,
