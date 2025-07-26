@@ -31,5 +31,16 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "vite": "^6.3.5"
-  }
+  },
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucianoVillanuevaR/proyecto.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucianoVillanuevaR/proyecto/issues"
+  },
+  "homepage": "https://github.com/lucianoVillanuevaR/proyecto#readme"
 }

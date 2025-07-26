@@ -9,17 +9,27 @@ const Login = () => {
   const navigate = useNavigate();
   const [loginError, setLoginError] = useState("");
 
-  // Función que maneja el envío del formulario de inicio de sesión
   const loginSubmit = async (data) => {
     try {
       const response = await loginService(data);
+
       if (response.request.status === 200) {
+        const token = response.data.accessToken;
+
+        // ✅ Guarda el token en localStorage
+        localStorage.setItem("token", token);
+
+        // ✅ Guarda los datos del usuario en sessionStorage
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        sessionStorage.setItem("usuario", JSON.stringify(payload));
+
         navigate("/home");
       } else {
         setLoginError("Usuario o contraseña incorrectos");
       }
     } catch (error) {
       console.error(error);
+      setLoginError("Error al iniciar sesión");
     }
   };
 
