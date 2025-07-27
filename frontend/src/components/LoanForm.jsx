@@ -1,4 +1,3 @@
-// src/components/LoanForm.jsx
 export default function LoanForm({ materialNombre, setMaterialNombre, handleSubmit }) {
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
