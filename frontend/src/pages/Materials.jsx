@@ -1,4 +1,3 @@
-// src/pages/Materials.jsx
 import { useEffect, useState } from "react";
 import { getAllMaterials } from "@services/material.service.js";
 
