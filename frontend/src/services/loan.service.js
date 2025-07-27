@@ -2,7 +2,7 @@ import cookies from "js-cookie";
 
 const API_URL = "http://localhost:3000/api/prestamos";
 
-// 📦 Solicitar préstamo
+
 export const solicitarPrestamo = async (materialNombre) => {
   const token = cookies.get("jwt-auth");
   if (!token) throw new Error("No hay token");
@@ -35,7 +35,6 @@ export const solicitarPrestamo = async (materialNombre) => {
   return data;
 };
 
-// 🔁 Devolver préstamo (sin enviar id, el backend identifica por token)
 export const devolverPrestamo = async () => {
   const token = cookies.get("jwt-auth");
   if (!token) throw new Error("No hay token");
