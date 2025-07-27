@@ -38,7 +38,7 @@ export default function Loans() {
 
     try {
       await solicitarPrestamo(materialNombre);
-      setMensaje("✅ Préstamo registrado exitosamente.");
+      setMensaje("Préstamo registrado exitosamente.");
       setMaterialNombre("");
       fetchPrestamos();
     } catch (err) {
@@ -57,7 +57,7 @@ export default function Loans() {
 
     try {
       await devolverPrestamo();
-      setMensaje("✅ Préstamo devuelto correctamente.");
+      setMensaje("Préstamo devuelto correctamente.");
       fetchPrestamos();
     } catch (err) {
       console.error("Error al devolver préstamo:", err);
