@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "@services/auth.service.js";
 import {
@@ -16,7 +15,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const usuario = JSON.parse(sessionStorage.getItem("usuario")) || {};
-  const rol = usuario.rol || usuario.role || ""; // por si acaso viene como 'role'
+  const rol = usuario.rol || usuario.role || ""; 
 
   const logoutSubmit = () => {
     try {
