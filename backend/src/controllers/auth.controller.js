@@ -86,7 +86,8 @@ export async function login(req, res) {
       username: userFound.username,
       email: userFound.email,
       rut: userFound.rut,
-      rol: userFound.role,
+      rol: userFound.role, // compatibilidad
+      role: userFound.role, // para frontend
     };
     const accessToken = jwt.sign(payload, SESSION_SECRET, { expiresIn: "1d" });
 
@@ -106,3 +107,6 @@ export async function logout(req, res) {
     return res.status(500).json({ message: "Error al cerrar sesión" });
   }
 }
+
+
+

@@ -38,6 +38,7 @@ export async function createLoan(req, res) {
     }
 
     const hora = new Date().getHours();
+    // Solo permitir fuera de horario a administradores, los demás (estudiante, usuario) solo en horario
     if ((hora < 8 || hora >= 18) && rolUsuario !== "administrador") {
       return res.status(403).json({
         message: "Los préstamos solo están disponibles entre 08:00 y 18:00.",

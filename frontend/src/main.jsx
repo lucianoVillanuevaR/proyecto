@@ -13,7 +13,6 @@ import Materials from "@pages/Materials";
 import Ayudantias from '@pages/Ayudantias';
 import CreateAyudantia from '@pages/CreateAyudantia';
 
-
 import ProtectedRoute from "@components/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -34,7 +33,7 @@ const router = createBrowserRouter([
       {
         path: "/loans",
         element: (
-          <ProtectedRoute allowedRoles={["estudiante", "administrador"]}>
+          <ProtectedRoute allowedRoles={["usuario", "administrador"]}>
             <Loans />
           </ProtectedRoute>
         ),
@@ -42,7 +41,7 @@ const router = createBrowserRouter([
       {
         path: "/materials",
         element: (
-          <ProtectedRoute allowedRoles={["estudiante", "administrador"]}>
+          <ProtectedRoute allowedRoles={["usuario", "administrador"]}>
             <Materials />
           </ProtectedRoute>
         ),
@@ -50,11 +49,19 @@ const router = createBrowserRouter([
       { path: "/profile", element: <Profile /> },
       {
         path: "/ayudantias",
-        element: <Ayudantias />,
+        element: (
+          <ProtectedRoute allowedRoles={["usuario", "administrador"]}>
+            <Ayudantias />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/ayudantias/create",
-        element: <CreateAyudantia />,
+        element: (
+          <ProtectedRoute allowedRoles={["administrador"]}>
+            <CreateAyudantia />
+          </ProtectedRoute>
+        ),
       }
     ],
   },
@@ -65,5 +72,3 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <RouterProvider router={router} />
 );
-
-

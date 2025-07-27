@@ -1,126 +1,159 @@
-import { useState, useEffect } from "react";
-import LoanForm from "../components/LoanForm";
-import LoanTable from "../components/LoanTable";
-import LoanMessage from "../components/LoanMessage";
-import LoanRequirements from "../components/LoanRequirements";
+import { useEffect, useState } from "react";
+import {
+  solicitarPrestamo,
+  getPrestamos,
+  devolverPrestamo,
+} from "@services/loan.service.js";
+import LoanMessage from "@components/LoanMessage.jsx";
 
 export default function Loans() {
   const [materialNombre, setMaterialNombre] = useState("");
+  const [prestamos, setPrestamos] = useState([]);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
-  const [rol, setRol] = useState("");
-  const [prestamos, setPrestamos] = useState([]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    try {
-      const payload = token ? JSON.parse(atob(token.split(".")[1])) : null;
-      if (payload && (payload.rol || payload.role)) {
-        const rolDetectado = payload.rol || payload.role;
-        setRol(rolDetectado);
-        if (rolDetectado === "administrador") {
-          fetchPrestamos(token);
-        }
-      } else {
-        setError("No se pudo obtener el rol del usuario.");
-      }
-    } catch (err) {
-      console.error("Token inválido:", err);
-      setError("Error al leer el token.");
-    }
-  }, []);
+  const usuario = JSON.parse(sessionStorage.getItem("usuario")) || {};
+  const emailUsuario = usuario.email || "";
 
-  const fetchPrestamos = async (token) => {
+  const fetchPrestamos = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/prestamos", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setPrestamos(data.data);
-      } else {
-        setError(data.message);
-      }
+      const data = await getPrestamos();
+
+      const misPrestamos = data.filter(
+        (p) =>
+          p.estudianteEmail?.trim().toLowerCase() ===
+          emailUsuario.trim().toLowerCase()
+      );
+
+      setPrestamos(misPrestamos);
     } catch (err) {
-      console.error("Error al obtener préstamos:", err);
-      setError("Error al obtener la lista de préstamos.");
+      console.error("Error al cargar préstamos:", err);
+      setError("No se pudo cargar la lista de préstamos");
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSolicitar = async () => {
     setMensaje("");
     setError("");
+
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/prestamos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ materialNombre }),
-      });
-
-      const contentType = res.headers.get("content-type");
-      let data = {};
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        console.error("Respuesta inesperada:", text);
-        throw new Error("Respuesta del servidor no válida");
-      }
-
-      if (!res.ok) throw new Error(data.message);
-
-      setMensaje(data.message || "Préstamo creado exitosamente");
+      await solicitarPrestamo(materialNombre);
+      setMensaje("✅ Préstamo registrado exitosamente.");
       setMaterialNombre("");
-      if (rol === "administrador") fetchPrestamos(token);
+      fetchPrestamos();
     } catch (err) {
-      setError(err.message || "Error inesperado");
+      console.error("Error al solicitar préstamo:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Error al solicitar préstamo"
+      );
     }
   };
 
-  const devolverPrestamo = async (id) => {
+  const handleDevolver = async () => {
+    setMensaje("");
+    setError("");
+
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:3000/api/prestamos/devolver", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setMensaje("Préstamo devuelto correctamente.");
-      fetchPrestamos(token);
+      await devolverPrestamo();
+      setMensaje("✅ Préstamo devuelto correctamente.");
+      fetchPrestamos();
     } catch (err) {
-      console.error("Error al devolver:", err);
-      setError(err.message);
+      console.error("Error al devolver préstamo:", err);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Error al devolver préstamo"
+      );
     }
   };
+
+  useEffect(() => {
+    fetchPrestamos();
+  }, []);
 
   return (
-    <>
-      <h1 className="text-2xl font-bold mb-4">Solicitar Préstamo</h1>
-      <LoanRequirements />
-      {(rol === "estudiante" || rol === "administrador") && (
-        <LoanForm
-          materialNombre={materialNombre}
-          setMaterialNombre={setMaterialNombre}
-          handleSubmit={handleSubmit}
+    <div className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6 text-yellow-800">
+        📦 Préstamos de Material
+      </h1>
+
+      <div className="mb-4 bg-yellow-50 p-4 border border-yellow-200 rounded-lg text-sm text-gray-700">
+        <strong>Requisitos:</strong>
+        <ul className="list-disc ml-6 mt-1">
+          <li>Solo un préstamo pendiente por usuario.</li>
+          <li>El material debe estar activo y con stock disponible.</li>
+        </ul>
+      </div>
+
+      <div className="flex items-center gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Ej. balón de fútbol"
+          className="border px-3 py-2 rounded w-full"
+          value={materialNombre}
+          onChange={(e) => setMaterialNombre(e.target.value)}
         />
-      )}
-      {rol === "administrador" && (
-        <LoanTable prestamos={prestamos} devolverPrestamo={devolverPrestamo} />
-      )}
+        <button
+          onClick={handleSolicitar}
+          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded"
+        >
+          Solicitar préstamo
+        </button>
+      </div>
+
       <LoanMessage mensaje={mensaje} error={error} />
-    </>
+
+      <h2 className="text-xl font-semibold mb-2">📋 Mis Préstamos</h2>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow text-sm">
+          <thead className="bg-gray-100 text-gray-700 font-semibold">
+            <tr>
+              <th className="px-3 py-2 text-left">ID</th>
+              <th className="px-3 py-2 text-left">Material</th>
+              <th className="px-3 py-2 text-left">Estado</th>
+              <th className="px-3 py-2 text-left">Fecha</th>
+              <th className="px-3 py-2 text-left">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {prestamos.length > 0 ? (
+              prestamos.map((p) => (
+                <tr key={p.id} className="border-t hover:bg-gray-50">
+                  <td className="px-3 py-2">{p.id}</td>
+                  <td className="px-3 py-2">{p.materialNombre}</td>
+                  <td className="px-3 py-2 capitalize">{p.estado}</td>
+                  <td className="px-3 py-2">
+                    {new Date(p.fechaHoraPrestamo).toLocaleString("es-CL")}
+                  </td>
+                  <td className="px-3 py-2">
+                    {p.estado === "pendiente" && (
+                      <button
+                        onClick={handleDevolver}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
+                      >
+                        Devolver
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-3 text-gray-500">
+                  No tienes préstamos registrados.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
+
+
+
 
