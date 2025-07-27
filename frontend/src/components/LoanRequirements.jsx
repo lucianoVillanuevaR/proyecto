@@ -1,4 +1,3 @@
-// src/components/LoanRequirements.jsx
 export default function LoanRequirements() {
   return (
     <ul>
