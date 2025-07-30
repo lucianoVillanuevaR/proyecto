@@ -12,6 +12,7 @@ import Loans from "@pages/Loans";
 import Materials from "@pages/Materials"; 
 import Ayudantias from '@pages/Ayudantias';
 import CreateAyudantia from '@pages/CreateAyudantia';
+import Activities from '@pages/Activities';
 
 import ProtectedRoute from "@components/ProtectedRoute";
 
@@ -60,6 +61,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["administrador"]}>
             <CreateAyudantia />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/activities",
+        element: (
+          <ProtectedRoute allowedRoles={["usuario", "administrador"]}>
+            <Activities />
           </ProtectedRoute>
         ),
       }
