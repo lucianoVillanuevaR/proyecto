@@ -7,6 +7,7 @@ import {
   FaClipboardList,
   FaBox,
   FaBookOpen,
+    FaCalendarAlt,
 } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import "@styles/Sidebar.css";
@@ -66,7 +67,11 @@ const Sidebar = () => {
               <FaBox className="icon" /> Materiales
             </NavLink>
           </li>
-
+          <li>
+            <NavLink to="/activities">
+              <FaCalendarAlt className="icon"/> Actividades
+            </NavLink>
+          </li>
           <li style={{ height: "70%" }} />
 
           <li className="logout">

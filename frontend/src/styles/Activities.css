@@ -1,0 +1,475 @@
+/* Activities.css - Estilos completos para el módulo de actividades */
+
+.activities-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.activities-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #e9ecef;
+}
+
+.activities-header h1 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.propose-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.propose-btn:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: white;
+    padding: 0;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.no-activities {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border-radius: 16px;
+    border: 2px dashed #dee2e6;
+}
+
+.no-activities h3 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #495057;
+}
+
+.no-activities p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.activities-content {
+    margin-top: 20px;
+}
+
+.activities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.activity-card {
+    border: 1px solid #e0e6ed;
+    border-radius: 16px;
+    padding: 24px;
+    background: white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.activity-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #28a745, #ffc107);
+}
+
+.activity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-color: #007bff;
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    gap: 15px;
+}
+
+.activity-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3rem;
+    font-weight: 600;
+    flex: 1;
+    line-height: 1.3;
+}
+
+.status-badge {
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.activity-description {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.activity-info {
+    margin-bottom: 20px;
+    background: #f8f9fa;
+    padding: 16px;
+    border-radius: 12px;
+    border-left: 4px solid #007bff;
+}
+
+.info-item {
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item strong {
+    color: #495057;
+    min-width: 100px;
+}
+
+.activity-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.vote-btn, .organize-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+}
+
+.vote-btn.voted {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    color: #212529;
+}
+
+.vote-btn.not-voted {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.vote-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.organize-btn {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+}
+
+.organize-btn:hover {
+    background: linear-gradient(135deg, #138496, #117a8b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+}
+
+/* Estilos para el formulario */
+.propose-form-container {
+    padding: 30px;
+}
+
+.propose-form-container h2 {
+    margin: 0 0 25px 0;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #007bff;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+    display: block;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.form-actions button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.form-actions button[type="button"] {
+    background: #6c757d;
+    color: white;
+}
+
+.form-actions button[type="button"]:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.form-actions button[type="submit"] {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.form-actions button[type="submit"]:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.form-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .activities-page {
+        padding: 15px;
+    }
+    
+    .activities-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .activities-header h1 {
+        font-size: 2rem;
+    }
+    
+    .propose-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .activities-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .activity-card {
+        padding: 20px;
+    }
+    
+    .activity-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .status-badge {
+        align-self: flex-start;
+    }
+    
+    .activity-actions {
+        flex-direction: column;
+    }
+    
+    .vote-btn, .organize-btn {
+        width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+    
+    .propose-form-container {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .activities-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .activity-card {
+        padding: 16px;
+    }
+    
+    .propose-form-container h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animaciones adicionales */
+.activity-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estados de loading en botones */
+.vote-btn:disabled,
+.organize-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.9; }
+}
