@@ -7,7 +7,6 @@ import { getAyudantias,
     getayudantiaById,
     updateAyudantia,
     deleteAyudantia,
-    getAyudantiasConCupos
 } from "../controllers/ayudantia.controller.js";
 
 const router = Router();
@@ -15,7 +14,6 @@ const router = Router();
 router.use(authenticateJwt);
 
 router.get("/", getAyudantias);
-router.get("/con-cupos", getAyudantiasConCupos);
 router.get("/:id", getayudantiaById);
 
 router.post("/", isAdmin, createAyudantia);
